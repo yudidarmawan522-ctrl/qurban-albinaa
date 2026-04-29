@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Real-Time Qurban 1447H | Al Binaa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: #f4f7f6;
+            min-height: 100vh;
+        }
+        .stat-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%);
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+            position: relative;
+        }
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #4caf50;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .stat-card-public {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card-public:hover {
+            transform: translateY(-5px);
+        }
+        .counter-num {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="stat-banner">
+        <div class="live-badge">
+            <div class="live-dot"></div> UPDATE REAL-TIME
+        </div>
+        <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -1px;">Monitor Perolehan Qurban 1447H</h1>
+        <p style="opacity: 0.8; margin-top: 0.5rem;">Terakhir diperbarui: <span id="last-update">-</span></p>
+    </div>
+
+    <div class="container" style="max-width: 1000px; margin: -2rem auto 5rem; padding: 0 1rem; position: relative; z-index: 10;">
+        <!-- Progress Bars -->
+        <div class="glass-card" style="margin-bottom: 3rem; padding: 2.5rem;">
+            <h3 style="color: var(--primary); font-weight: 800; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.8rem;">
+                <i class="fas fa-tasks"></i> PROGRESS TARGET PONDOK 1447H
+            </h3>
+            
+            <div style="margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-weight: 700;">
+                    <span><i class="fas fa-cow"></i> Target Sapi</span>
+                    <span><span id="sapi-progress-text">0/0</span> Ekor (<span id="sapi-pct">0%</span>)</span>
+                </div>
+                <div style="height: 12px; background: #e0e0e0; border-radius: 50px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                    <div id="sapi-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), #4caf50); transition: width 1s ease-out;"></div>
+                </div>
+            </div>
+
+            <div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-weight: 700;">
+                    <span><i class="fas fa-sheep"></i> Target Domba</span>
+                    <span><span id="domba-progress-text">0/0</span> Ekor (<span id="domba-pct">0%</span>)</span>
+                </div>
+                <div style="height: 12px; background: #e0e0e0; border-radius: 50px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                    <div id="domba-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ef6c00, #ffb74d); transition: width 1s ease-out;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+            <!-- Sapi -->
+            <div class="stat-card-public">
+                <div style="width: 70px; height: 70px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: var(--primary); font-size: 2rem;">
+                    <i class="fas fa-cow"></i>
+                </div>
+                <div class="counter-num" id="count-sapi">0</div>
+                <h3 style="color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Ekor Sapi</h3>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: center; gap: 2rem;">
+                    <div>
+                        <div style="font-weight: 800; color: var(--primary);" id="sapi-utuh">0</div>
+                        <div style="font-size: 0.7rem; color: #999;">UTUH</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: 800; color: var(--primary);" id="sapi-patungan">0</div>
+                        <div style="font-size: 0.7rem; color: #999;">PATUNGAN</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Domba -->
+            <div class="stat-card-public">
+                <div style="width: 70px; height: 70px; background: #fff3e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #ef6c00; font-size: 2rem;">
+                    <i class="fas fa-sheep"></i>
+                </div>
+                <div class="counter-num" id="count-domba" style="color: #ef6c00;">0</div>
+                <h3 style="color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Ekor Domba</h3>
+                <p style="margin-top: 1.5rem; color: #999; font-size: 0.9rem;">Total terkumpul dari semua tipe</p>
+            </div>
+
+            <!-- Mudhohi -->
+            <div class="stat-card-public">
+                <div style="width: 70px; height: 70px; background: #e3f2fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; color: #1565c0; font-size: 2rem;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="counter-num" id="count-mudhohi" style="color: #1565c0;">0</div>
+                <h3 style="color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Total Mudhohi</h3>
+                <p style="margin-top: 1.5rem; color: #999; font-size: 0.9rem;">Wali Santri & Donatur</p>
+            </div>
+        </div>
+
+        <div class="glass-card" style="margin-top: 3rem; padding: 3rem; text-align: center;">
+            <h2 style="color: var(--primary); font-weight: 800; margin-bottom: 2rem;">Statistik Mingguan</h2>
+            <div style="height: 300px;">
+                <canvas id="publicTrendChart"></canvas>
+            </div>
+            <div style="margin-top: 3rem;">
+                <a href="index.html" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.8rem; padding: 1.2rem 2.5rem;">
+                    IKUT BERQURBAN SEKARANG <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const [registrations, settings] = await Promise.all([
+                fetchAPI('/registrations'),
+                fetchAPI('/settings')
+            ]);
+            
+            document.getElementById('last-update').textContent = new Date().toLocaleString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+            const sapiRegistrations = registrations.filter(r => r.category === 'SAPI');
+            const dombaRegistrations = registrations.filter(r => r.category === 'DOMBA');
+            
+            // Sapi count (Patungan 7 = 1 ekor)
+            const sapiUtuhCount = sapiRegistrations.filter(r => r.purchase_type === 'Utuh').length;
+            const sapiPatunganCount = sapiRegistrations.filter(r => r.purchase_type === 'Patungan').length;
+            const totalSapiEkor = sapiUtuhCount + Math.ceil(sapiPatunganCount / 7);
+
+            // Update Counters
+            document.getElementById('count-sapi').textContent = totalSapiEkor;
+            document.getElementById('sapi-utuh').textContent = sapiUtuhCount;
+            document.getElementById('sapi-patungan').textContent = sapiPatunganCount;
+            document.getElementById('count-domba').textContent = dombaRegistrations.length;
+            document.getElementById('count-mudhohi').textContent = registrations.length;
+
+            // Progress Logic
+            const targetSapi = settings.target_sapi || 50;
+            const targetDomba = settings.target_domba || 200;
+
+            const sapiPct = Math.min(Math.round((totalSapiEkor / targetSapi) * 100), 100);
+            const dombaPct = Math.min(Math.round((dombaRegistrations.length / targetDomba) * 100), 100);
+
+            document.getElementById('sapi-progress-text').textContent = `${totalSapiEkor}/${targetSapi}`;
+            document.getElementById('sapi-pct').textContent = `${sapiPct}%`;
+            document.getElementById('sapi-bar').style.width = `${sapiPct}%`;
+
+            document.getElementById('domba-progress-text').textContent = `${dombaRegistrations.length}/${targetDomba}`;
+            document.getElementById('domba-pct').textContent = `${dombaPct}%`;
+            document.getElementById('domba-bar').style.width = `${dombaPct}%`;
+
+            // Trend Chart
+            const ctx = document.getElementById('publicTrendChart').getContext('2d');
+            const dateGroups = {};
+            registrations.forEach(reg => {
+                const date = new Date(reg.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                dateGroups[date] = (dateGroups[date] || 0) + 1;
+            });
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(dateGroups),
+                    datasets: [{
+                        label: 'Pendaftar Baru',
+                        data: Object.values(dateGroups),
+                        backgroundColor: 'rgba(0, 77, 64, 0.6)',
+                        borderRadius: 8,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

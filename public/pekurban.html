@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Pekurban | Al Binaa Qurban</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body style="background: #f0f2f5;">
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand"><i class="fas fa-mosque"></i> AL BINAA ADMIN</div>
+            <ul class="sidebar-nav">
+                <li><a href="admin.html"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                <li><a href="inventaris.html"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
+                <li><a href="pekurban.html" class="active"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
+                <li><a href="laporan.html"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
+                <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
+            </ul>
+        </aside>
+
+        <div class="mobile-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></div>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; background: white; padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Data Mudhohi & Santri</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Manajemen lengkap data pendaftaran qurban</p>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div id="realtime-clock" style="text-align: right; border-right: 2px solid #f0f0f0; padding-right: 2rem;">
+                        <div id="clock-time" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1;">00:00:00</div>
+                        <div id="clock-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 5px;">Hari, Tanggal</div>
+                    </div>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 1rem; padding-left: 1rem; border-left: 2px solid #f0f0f0;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 0.95rem;">Administrator</div>
+                            <a href="#" onclick="logout()" style="color: #ff5252; text-decoration: none; font-size: 0.8rem; font-weight: 700;">LOGOUT <i class="fas fa-sign-out-alt"></i></a>
+                        </div>
+                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,77,64,0.2);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-input" placeholder="Cari Nama Mudhohi, Santri, atau Kelas...">
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-export" id="btn-export-excel" style="background: #2e7d32; border: none; padding: 0.6rem 1rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 700;"><i class="fas fa-file-excel"></i> Export Excel</button>
+                        <button class="btn-export" id="btn-export-pdf" style="background: #c62828; border: none; padding: 0.6rem 1rem; border-radius: 8px; color: white; cursor: pointer; font-weight: 700;"><i class="fas fa-file-pdf"></i> Download PDF</button>
+                    </div>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table id="full-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Mudhohi</th>
+                                <th>Santri</th>
+                                <th>Kelas</th>
+                                <th>Jenis Qurban</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrations-body">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tableBody = document.getElementById('registrations-body');
+            const searchInput = document.getElementById('search-input');
+            let allData = [];
+
+            const loadData = async () => {
+                allData = await fetchAPI('/registrations');
+                renderTable(allData);
+            };
+
+            window.showQR = (id) => {
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.style.display = 'block';
+                modal.innerHTML = `
+                    <div class="modal-content" style="text-align: center;">
+                        <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                        <h2 style="color: var(--primary);">QR Code Pendaftaran</h2>
+                        <canvas id="qr-display" style="margin: 2rem auto;"></canvas>
+                        <p style="font-weight: 800; font-size: 1.2rem;">ID: ${id}</p>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                QRCode.toCanvas(document.getElementById('qr-display'), id, { width: 250 });
+            };
+
+            const renderTable = (data) => {
+                tableBody.innerHTML = '';
+                data.forEach(reg => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${new Date(reg.created_at).toLocaleDateString('id-ID')}</td>
+                        <td><strong>${reg.name}</strong></td>
+                        <td>${reg.santri_name}</td>
+                        <td>${reg.santri_class}</td>
+                        <td>${reg.category} - ${reg.type_label}</td>
+                        <td><span class="badge ${reg.status === 'Pending' ? 'badge-pending' : 'badge-confirmed'}">${reg.status}</span></td>
+                        <td>
+                            <button title="Lihat QR" onclick="showQR('${reg.id}')" style="border:none; background:#f0f4f8; color:var(--primary); padding:0.5rem; border-radius:5px; cursor:pointer;"><i class="fas fa-qrcode"></i></button>
+                            <a title="WhatsApp" href="https://wa.me/${reg.phone.replace(/[^0-9]/g, '')}?text=Assalamualaikum Bapak/Ibu ${reg.name}, pendaftaran qurban Anda sudah kami terima." target="_blank" style="display:inline-block; border:none; background:#e8f5e9; color:#2e7d32; padding:0.5rem; border-radius:5px; cursor:pointer; margin-left:0.3rem;"><i class="fab fa-whatsapp"></i></a>
+                            <button title="Bayar" style="border:none; background:#fff3e0; color:#ef6c00; padding:0.5rem; border-radius:5px; cursor:pointer; margin-left:0.3rem;"><i class="fas fa-credit-card"></i></button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            };
+
+            searchInput.oninput = () => {
+                const query = searchInput.value.toLowerCase();
+                const filtered = allData.filter(reg => 
+                    reg.name.toLowerCase().includes(query) || 
+                    reg.santri_name.toLowerCase().includes(query) ||
+                    reg.santri_class.toLowerCase().includes(query)
+                );
+                renderTable(filtered);
+            };
+
+            loadData();
+
+            // EXPORT EXCEL RAPIH
+            document.getElementById('btn-export-excel').onclick = () => {
+                if (allData.length === 0) return alert('Tidak ada data untuk diekspor!');
+
+                const formattedData = allData.map((reg, index) => ({
+                    'No': index + 1,
+                    'Tanggal Daftar': new Date(reg.created_at).toLocaleDateString('id-ID'),
+                    'ID Pendaftaran': reg.id,
+                    'Nama Mudhohi': reg.name,
+                    'WhatsApp': reg.phone,
+                    'Nama Santri': reg.santri_name,
+                    'Kelas': reg.santri_class,
+                    'Kategori': reg.category,
+                    'Tipe Hewan': reg.type_label,
+                    'Harga': reg.price,
+                    'Metode Bayar': reg.payment_method,
+                    'Status': reg.status,
+                    'Catatan': reg.notes || '-'
+                }));
+
+                const worksheet = XLSX.utils.json_to_sheet(formattedData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Data Mudhohi");
+
+                const wscols = [
+                    {wch: 5}, {wch: 15}, {wch: 18}, {wch: 25}, {wch: 15}, {wch: 25}, 
+                    {wch: 10}, {wch: 12}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 12}, {wch: 30}
+                ];
+                worksheet['!cols'] = wscols;
+
+                XLSX.writeFile(workbook, `Data_Mudhohi_Al_Binaa_1447H.xlsx`);
+            };
+
+            // EXPORT PDF PROFESIONAL
+            document.getElementById('btn-export-pdf').onclick = () => {
+                if (allData.length === 0) return alert('Tidak ada data untuk diekspor!');
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF('landscape');
+
+                // Header
+                doc.setFontSize(18);
+                doc.setTextColor(0, 77, 64);
+                doc.text('LAPORAN DATA MUHDOI QURBAN AL BINAA 1447H', 14, 20);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 28);
+
+                const tableData = allData.map((reg, index) => [
+                    index + 1,
+                    new Date(reg.created_at).toLocaleDateString('id-ID'),
+                    reg.name,
+                    reg.santri_name,
+                    reg.santri_class,
+                    `${reg.category} (${reg.type_label})`,
+                    reg.payment_method,
+                    reg.status
+                ]);
+
+                doc.autoTable({
+                    startY: 35,
+                    head: [['No', 'Tanggal', 'Mudhohi', 'Santri', 'Kelas', 'Jenis Qurban', 'Pembayaran', 'Status']],
+                    body: tableData,
+                    headStyles: { fillColor: [0, 77, 64], textColor: [255, 255, 255], fontStyle: 'bold' },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { top: 35 },
+                    theme: 'grid'
+                });
+
+                doc.save(`Laporan_Mudhohi_Al_Binaa_1447H.pdf`);
+            };
+
+            window.logout = () => {
+                localStorage.removeItem('isLoggedIn');
+                window.location.href = 'login.html';
+            };
+
+            // Mobile Toggle
+            const sidebar = document.querySelector('.sidebar');
+            const toggle = document.getElementById('sidebar-toggle');
+            if (toggle) {
+                toggle.onclick = () => {
+                    sidebar.classList.toggle('active');
+                    toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                };
+            }
+        });
+    </script>
+</body>
+</html>

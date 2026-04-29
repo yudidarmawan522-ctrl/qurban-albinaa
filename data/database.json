@@ -1,0 +1,177 @@
+{
+  "registrations": [
+    {
+      "id": "REG-1714380000001",
+      "name": "Bapak Ahmad Fauzi",
+      "santri_name": "Zaid Ahmad",
+      "santri_class": "7-A",
+      "phone": "081234567890",
+      "type_id": "D-SUPER",
+      "category": "DOMBA",
+      "type_label": "SUPER",
+      "price": 5300000,
+      "payment_method": "Transfer BSI",
+      "notes": "Alhamdulillah",
+      "penyembelih": "Ust. Hamzah",
+      "status": "Confirmed",
+      "created_at": "2024-04-29T10:00:00Z"
+    },
+    {
+      "id": "REG-1714380000002",
+      "name": "Ibu Siti Aminah",
+      "santri_name": "Maryam Siti",
+      "santri_class": "10-IPA",
+      "phone": "089876543210",
+      "type_id": "S-TIPE-B",
+      "category": "SAPI",
+      "type_label": "Tipe B",
+      "price": 28000000,
+      "payment_method": "Cash",
+      "notes": "Sapi kolektif keluarga",
+      "penyembelih": "Petugas Kebersihan",
+      "status": "Pending",
+      "created_at": "2024-04-29T10:30:00Z"
+    }
+  ],
+  "types": [
+    {
+      "id": "S-TIPE-A",
+      "category": "SAPI",
+      "type": "Tipe A",
+      "weight": "390-400 Kg",
+      "price": 35000000,
+      "price_per_share": 5000000,
+      "stock": 5
+    },
+    {
+      "id": "S-TIPE-B",
+      "category": "SAPI",
+      "type": "Tipe B",
+      "weight": "340-350 Kg",
+      "price": 28000000,
+      "price_per_share": 4000000,
+      "stock": 8
+    },
+    {
+      "id": "S-TIPE-C",
+      "category": "SAPI",
+      "type": "Tipe C",
+      "weight": "320-330 Kg",
+      "price": 23100000,
+      "price_per_share": 3300000,
+      "stock": 10
+    },
+    {
+      "id": "S-TIPE-D",
+      "category": "SAPI",
+      "type": "Tipe D",
+      "weight": "230-240 Kg",
+      "price": 19000000,
+      "price_per_share": null,
+      "stock": 12
+    },
+    {
+      "id": "D-SUPER",
+      "category": "DOMBA",
+      "type": "SUPER",
+      "weight": "45-60 Kg",
+      "price": 5300000,
+      "stock": 20
+    },
+    {
+      "id": "D-TIPE-A",
+      "category": "DOMBA",
+      "type": "A",
+      "weight": "31-35 Kg",
+      "price": 3800000,
+      "stock": 25
+    },
+    {
+      "id": "D-TIPE-B",
+      "category": "DOMBA",
+      "type": "B",
+      "weight": "26-30 Kg",
+      "price": 3300000,
+      "stock": 30
+    },
+    {
+      "id": "D-TIPE-C",
+      "category": "DOMBA",
+      "type": "C",
+      "weight": "20-25 Kg",
+      "price": 2800000,
+      "stock": 40
+    },
+    {
+      "id": "D-TIPE-D",
+      "category": "DOMBA",
+      "type": "D",
+      "weight": "15-19 Kg",
+      "price": 2300000,
+      "stock": 50
+    }
+  ],
+  "inventory": {
+    "S-TIPE-A": [
+      {
+        "no": "S01",
+        "status": "Available",
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "no": "S02",
+        "status": "Available",
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "no": "S03",
+        "status": "Available",
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ],
+    "D-SUPER": [
+      {
+        "no": "K01",
+        "status": "Available"
+      },
+      {
+        "no": "K02",
+        "status": "Available"
+      },
+      {
+        "no": "K03",
+        "status": "Available"
+      }
+    ]
+  },
+  "settings": {
+    "target_sapi": 30,
+    "target_domba": 300,
+    "program_name": "Qurban Al Binaa 1447H",
+    "deadline": "2026-06-15"
+  }
+}

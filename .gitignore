@@ -1,0 +1,5 @@
+node_modules/
+.env
+*.log
+data/registrations_backup.json
+.DS_Store

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengaturan Program | Al Binaa Admin</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body style="background: #f0f2f5;">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-mosque"></i> AL BINAA ADMIN
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="admin.html"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                <li><a href="inventaris.html"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
+                <li><a href="pekurban.html"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
+                <li><a href="laporan.html"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="settings.html" class="active"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
+                <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; background: white; padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Pengaturan Program</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola target dan informasi publik qurban</p>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div id="realtime-clock" style="text-align: right; border-right: 2px solid #f0f0f0; padding-right: 2rem;">
+                        <div id="clock-time" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1;">00:00:00</div>
+                        <div id="clock-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 5px;">Hari, Tanggal</div>
+                    </div>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 1rem; padding-left: 1rem; border-left: 2px solid #f0f0f0;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 0.95rem;">Administrator</div>
+                            <a href="#" onclick="logout()" style="color: #ff5252; text-decoration: none; font-size: 0.8rem; font-weight: 700;">LOGOUT <i class="fas fa-sign-out-alt"></i></a>
+                        </div>
+                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,77,64,0.2);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+                <form id="settings-form">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                        <div class="form-group">
+                            <label><i class="fas fa-bullseye"></i> Target Sapi (Ekor)</label>
+                            <input type="number" id="target_sapi" required style="width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid #ddd;">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-bullseye"></i> Target Domba (Ekor)</label>
+                            <input type="number" id="target_domba" required style="width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid #ddd;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label><i class="fas fa-signature"></i> Nama Program Qurban</label>
+                        <input type="text" id="program_name" required placeholder="Contoh: Qurban Al Binaa 1447H" style="width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid #ddd;">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 3rem;">
+                        <label><i class="fas fa-calendar-alt"></i> Batas Akhir Pendaftaran</label>
+                        <input type="date" id="deadline" required style="width: 100%; padding: 1rem; border-radius: 10px; border: 1px solid #ddd;">
+                    </div>
+
+                    <div style="background: #fff8e1; padding: 1.5rem; border-radius: 12px; border-left: 5px solid #ffca28; margin-bottom: 2rem;">
+                        <p style="font-size: 0.9rem; color: #856404; font-weight: 600;">
+                            <i class="fas fa-info-circle"></i> Perubahan di sini akan langsung berdampak pada tampilan progress bar di halaman statistik publik.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.1rem; letter-spacing: 1px;">
+                        <i class="fas fa-save"></i> SIMPAN PERUBAHAN PENGATURAN
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Check login
+            if (localStorage.getItem('isLoggedIn') !== 'true') window.location.href = 'login.html';
+
+            const settings = await fetchAPI('/settings');
+            
+            document.getElementById('target_sapi').value = settings.target_sapi;
+            document.getElementById('target_domba').value = settings.target_domba;
+            document.getElementById('program_name').value = settings.program_name;
+            document.getElementById('deadline').value = settings.deadline;
+
+            document.getElementById('settings-form').onsubmit = async (e) => {
+                e.preventDefault();
+                const data = {
+                    target_sapi: parseInt(document.getElementById('target_sapi').value),
+                    target_domba: parseInt(document.getElementById('target_domba').value),
+                    program_name: document.getElementById('program_name').value,
+                    deadline: document.getElementById('deadline').value
+                };
+
+                const result = await fetchAPI('/settings', 'POST', data);
+                if (result.success) {
+                    alert('Pengaturan berhasil diperbarui!');
+                } else {
+                    alert('Gagal memperbarui pengaturan.');
+                }
+            };
+        });
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

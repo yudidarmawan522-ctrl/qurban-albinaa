@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventaris | Al Binaa Qurban</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body style="background: #f0f2f5;">
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-mosque"></i> AL BINAA ADMIN
+            </div>
+            <ul class="sidebar-nav">
+                <li><a href="admin.html"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                <li><a href="inventaris.html" class="active"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
+                <li><a href="pekurban.html"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
+                <li><a href="laporan.html"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
+                <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
+            </ul>
+        </aside>
+
+        <!-- Mobile Toggle -->
+        <div class="mobile-toggle" id="sidebar-toggle">
+            <i class="fas fa-bars"></i>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; background: white; padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Manajemen Inventaris</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Kelola stok hewan qurban 1447H</p>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div id="realtime-clock" style="text-align: right; border-right: 2px solid #f0f0f0; padding-right: 2rem;">
+                        <div id="clock-time" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1;">00:00:00</div>
+                        <div id="clock-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 5px;">Hari, Tanggal</div>
+                    </div>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 1rem; padding-left: 1rem; border-left: 2px solid #f0f0f0;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 0.95rem;">Administrator</div>
+                            <a href="#" onclick="logout()" style="color: #ff5252; text-decoration: none; font-size: 0.8rem; font-weight: 700;">LOGOUT <i class="fas fa-sign-out-alt"></i></a>
+                        </div>
+                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,77,64,0.2);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-card">
+                <div class="table-header">
+                    <h2 style="font-size: 1.2rem;">Daftar Stok Hewan</h2>
+                    <button class="btn-export" id="btn-add-type"><i class="fas fa-plus"></i> Tambah Tipe Baru</button>
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Kategori</th>
+                                <th>Tipe</th>
+                                <th>Berat</th>
+                                <th>Harga Satuan</th>
+                                <th>Sisa Stok</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table">
+                            <!-- Injected via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Inventory Modal -->
+    <div id="modal-inventory" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-inventory">&times;</span>
+            <h2 id="modal-title">Manajemen Inventaris</h2>
+            <form id="inventory-form">
+                <div class="form-group">
+                    <label><i class="fas fa-layer-group"></i> Kategori</label>
+                    <select id="inv-category">
+                        <option value="SAPI">SAPI</option>
+                        <option value="DOMBA">DOMBA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Tipe</label>
+                    <input type="text" id="inv-type" required placeholder="Contoh: Tipe A, Super">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-weight-hanging"></i> Berat Estimasi</label>
+                    <input type="text" id="inv-weight" required placeholder="Contoh: 300-350 Kg">
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label><i class="fas fa-money-bill-wave"></i> Harga</label>
+                        <input type="number" id="inv-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-cubes"></i> Stok</label>
+                        <input type="number" id="inv-stock" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    <i class="fas fa-check-circle"></i> SIMPAN PERUBAHAN STOK
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            const tableBody = document.getElementById('inventory-table');
+            const modal = document.getElementById('modal-inventory');
+            const btnAdd = document.getElementById('btn-add-type');
+            const closeBtn = document.getElementById('close-inventory');
+            const form = document.getElementById('inventory-form');
+
+            const loadInventory = async () => {
+                const types = await fetchAPI('/types');
+                tableBody.innerHTML = '';
+                types.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${t.category}</strong></td>
+                        <td>${t.type}</td>
+                        <td>${t.weight}</td>
+                        <td>Rp ${t.price.toLocaleString('id-ID')}</td>
+                        <td><span style="font-weight: 700;">${t.stock} Ekor</span></td>
+                        <td><span class="badge ${t.stock > 0 ? 'badge-confirmed' : 'badge-pending'}">${t.stock > 0 ? 'Tersedia' : 'Habis'}</span></td>
+                        <td>
+                            <button class="btn-edit" onclick='editType(${JSON.stringify(t)})' style="padding: 0.5rem; background: #e3f2fd; color: #1565c0; border: none; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            };
+
+            btnAdd.onclick = () => {
+                form.reset();
+                document.getElementById('modal-title').textContent = "Tambah Tipe Baru";
+                modal.style.display = "block";
+            };
+
+            closeBtn.onclick = () => modal.style.display = "none";
+            window.onclick = (e) => { if (e.target == modal) modal.style.display = "none"; };
+
+            window.editType = (type) => {
+                document.getElementById('modal-title').textContent = "Update Inventaris";
+                document.getElementById('inv-category').value = type.category;
+                document.getElementById('inv-type').value = type.type;
+                document.getElementById('inv-weight').value = type.weight;
+                document.getElementById('inv-price').value = type.price;
+                document.getElementById('inv-stock').value = type.stock;
+                modal.style.display = "block";
+            };
+
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                const data = {
+                    category: document.getElementById('inv-category').value,
+                    type: document.getElementById('inv-type').value,
+                    weight: document.getElementById('inv-weight').value,
+                    price: parseInt(document.getElementById('inv-price').value),
+                    stock: parseInt(document.getElementById('inv-stock').value)
+                };
+
+                const result = await fetchAPI('/types', 'POST', data);
+                if (result.message === 'Success') {
+                    alert('Inventaris berhasil diperbarui!');
+                    modal.style.display = "none";
+                    loadInventory();
+                }
+            };
+
+            loadInventory();
+
+            // Mobile Toggle Logic
+            const sidebar = document.querySelector('.sidebar');
+            const toggle = document.getElementById('sidebar-toggle');
+            if (toggle) {
+                toggle.onclick = () => {
+                    sidebar.classList.toggle('active');
+                    toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                };
+            }
+        });
+    </script>
+</body>
+</html>

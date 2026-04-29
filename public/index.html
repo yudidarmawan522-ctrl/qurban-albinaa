@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendaftaran Mudhohi | Al Binaa Qurban</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+</head>
+<body>
+    <nav style="background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); padding: 1.2rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000;">
+        <div class="container" style="display: flex; justify-content: center; align-items: center; max-width: 1200px;">
+            <div class="nav-brand" style="color: white; font-weight: 800; font-size: 1.6rem; display: flex; align-items: center; gap: 1rem;">
+                <img src="img/logo.png" alt="Logo" style="height: 40px; width: 40px; border-radius: 50%; background: white; padding: 2px;"> AL BINAA <span style="font-weight: 300; opacity: 0.8;">QURBAN 1447H</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="max-width: 900px; padding: 3rem 1rem; margin: 0 auto;">
+        <div class="glass-card" style="border-top: 10px solid var(--primary); padding: 3rem; box-shadow: 0 20px 50px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 3.5rem;">
+                <div style="width: 120px; height: 120px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden;">
+                    <img src="img/logo.png" alt="Al Binaa Logo" style="width: 90%; height: 90%; object-fit: contain;">
+                </div>
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <a href="statistik.html" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #e8f5e9; color: var(--primary); padding: 0.6rem 1.2rem; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--primary);">
+                        <i class="fas fa-chart-line"></i> LIHAT UPDATE REAL-TIME QURBAN <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+                <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">Formulir Pendaftaran Qurban</h1>
+                <p style="color: var(--text-muted); margin-top: 0.8rem; font-size: 1.1rem;">"Sempurnakan Ibadah Anda, Bagikan Kebahagiaan untuk Sesama"</p>
+                <div style="width: 60px; height: 4px; background: var(--secondary); margin: 1.5rem auto;"></div>
+            </div>
+            
+            <form id="registration-form">
+                <div class="grid-2" style="margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label><i class="fas fa-user-tag"></i> Nama Mudhohi (Pekurban)</label>
+                        <input type="text" id="name" required placeholder="Nama Lengkap Pekurban">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-whatsapp"></i> Nomor WhatsApp</label>
+                        <input type="tel" id="phone" required placeholder="0812xxxxxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-user-graduate"></i> Nama Santri</label>
+                        <input type="text" id="santri-name" required placeholder="Nama Lengkap Santri">
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-school"></i> Kelas Santri</label>
+                        <input type="text" id="santri-class" required placeholder="Contoh: 7A, 10-IPA, dll.">
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <label style="margin-bottom: 1.5rem; display: block; font-weight: 800; font-size: 1.1rem; text-align: center; color: var(--primary);">
+                        <i class="fas fa-cow"></i> PILIH JENIS HEWAN QURBAN
+                    </label>
+                    <div class="animal-selection" id="animal-selection">
+                        <!-- Cards injected via JS -->
+                    </div>
+                    <input type="hidden" id="type-id" required>
+
+                    <div id="purchase-type-section" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #ddd;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 1rem; color: var(--primary);">Opsi Pembelian Sapi:</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div id="opt-utuh" class="choice-btn selected" onclick="setPurchaseType('Utuh')" style="border: 2px solid #ddd; padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                                <i class="fas fa-cow" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                                <span style="font-weight: 700;">Beli Utuh</span>
+                                <p style="font-size: 0.8rem; color: #666; margin: 0;">1 Ekor Sapi</p>
+                            </div>
+                            <div id="opt-patungan" class="choice-btn" onclick="setPurchaseType('Patungan')" style="border: 2px solid #ddd; padding: 1rem; border-radius: 12px; cursor: pointer; text-align: center; transition: all 0.3s;">
+                                <i class="fas fa-users" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                                <span style="font-weight: 700;">Patungan (1/7)</span>
+                                <p style="font-size: 0.8rem; color: #666; margin: 0;">Berbagi dengan 6 orang</p>
+                            </div>
+                        </div>
+                        <input type="hidden" id="purchase-type" value="Utuh">
+                    </div>
+                </div>
+
+                <div class="grid-2" style="margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label><i class="fas fa-credit-card"></i> Metode Pembayaran</label>
+                        <select id="payment-method">
+                            <option value="Transfer BSI">Transfer BSI (768 1234 850)</option>
+                            <option value="Cash">Tunai / Langsung</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-file-upload"></i> Bukti Transfer (Opsional)</label>
+                        <input type="file" id="transfer-proof" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label><i class="fas fa-user-shield"></i> Pelaksana Penyembelihan</label>
+                    <select id="penyembelih">
+                        <option value="Panitia">Panitia / Petugas Al Binaa</option>
+                        <option value="Orang Tua">Orang Tua (Menyembelih Sendiri)</option>
+                        <option value="Ananda">Ananda (Santri Menyembelih Sendiri)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label><i class="fas fa-comment-dots"></i> Catatan Tambahan</label>
+                    <textarea id="notes" rows="3" placeholder="Tuliskan jika ada permintaan khusus..."></textarea>
+                </div>
+
+                <button type="submit" id="submit-btn" style="width: 100%; padding: 1.2rem; font-size: 1.1rem; background: var(--primary); box-shadow: 0 4px 15px rgba(0,77,64,0.3);">
+                    Kirim Pendaftaran <i class="fas fa-paper-plane" style="margin-left: 0.5rem;"></i>
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const types = await fetchAPI('/types');
+            const selectionContainer = document.getElementById('animal-selection');
+            const typeInput = document.getElementById('type-id');
+            const pricingGrid = document.getElementById('pricing-grid');
+
+            types.forEach(t => {
+                // Populate Selection Cards
+                const card = document.createElement('div');
+                card.className = 'animal-card';
+                card.innerHTML = `
+                    <div class="animal-img-container">
+                        <img src="img/${t.category.toLowerCase()}.png" alt="${t.category}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <h4>${t.type}</h4>
+                    <p>${t.category} - ${t.weight}</p>
+                    <span class="price">Rp ${t.price.toLocaleString('id-ID')}</span>
+                `;
+                
+                card.onclick = async () => {
+                    document.querySelectorAll('.animal-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    typeInput.value = t.id;
+                    
+                    // Show/Hide Purchase Type for Sapi
+                    const purchaseSection = document.getElementById('purchase-type-section');
+                    if (t.category === 'SAPI') {
+                        purchaseSection.style.display = 'block';
+                    } else {
+                        purchaseSection.style.display = 'none';
+                        document.getElementById('purchase-type').value = 'Utuh';
+                    }
+                };
+
+                selectionContainer.appendChild(card);
+            });
+
+            window.setPurchaseType = (type) => {
+                document.getElementById('purchase-type').value = type;
+                document.getElementById('opt-utuh').style.borderColor = type === 'Utuh' ? 'var(--primary)' : '#ddd';
+                document.getElementById('opt-utuh').style.background = type === 'Utuh' ? '#f0f9f8' : 'white';
+                document.getElementById('opt-patungan').style.borderColor = type === 'Patungan' ? 'var(--primary)' : '#ddd';
+                document.getElementById('opt-patungan').style.background = type === 'Patungan' ? '#f0f9f8' : 'white';
+            };
+
+            document.getElementById('registration-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!typeInput.value) {
+                    alert('Silakan pilih jenis hewan qurban terlebih dahulu!');
+                    return;
+                }
+
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = true;
+                btn.textContent = 'Mengirim...';
+
+                const data = {
+                    name: document.getElementById('name').value,
+                    santri_name: document.getElementById('santri-name').value,
+                    santri_class: document.getElementById('santri-class').value,
+                    phone: document.getElementById('phone').value,
+                    type_id: document.getElementById('type-id').value,
+                    purchase_type: document.getElementById('purchase-type').value,
+                    penyembelih: document.getElementById('penyembelih').value,
+                    payment_method: document.getElementById('payment-method').value,
+                    notes: document.getElementById('notes').value
+                };
+
+                // WhatsApp & QR Success Logic
+            const showSuccess = (reg) => {
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.style.display = 'block';
+                modal.innerHTML = `
+                    <div class="modal-content" style="text-align: center; border: 2px dashed var(--primary); padding: 3rem;">
+                        <div style="background: var(--primary); color: white; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
+                            <h2 style="margin:0; font-size: 1.5rem;">BUKTI PENDAFTARAN DIGITAL</h2>
+                        </div>
+                        <p style="font-size: 1.1rem;">Barakallahu lakum, Bapak/Ibu <strong>${reg.name}</strong></p>
+                        <p style="color: var(--text-muted); margin-bottom: 2rem;">Pendaftaran Qurban Anda telah tercatat secara resmi.</p>
+                        
+                        <div style="background: white; border: 1px solid #eee; padding: 2rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 2rem;">
+                            <canvas id="reg-qrcode" style="margin: 0 auto;"></canvas>
+                            <h3 style="margin-top: 1.5rem; color: var(--primary); letter-spacing: 2px;">#${reg.id}</h3>
+                        </div>
+
+                        <div style="text-align: left; background: #f8fafc; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Jenis Qurban:</span>
+                                <strong>${reg.category} - ${reg.type_label}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span>Opsi:</span>
+                                <strong style="color: var(--primary);">${reg.purchase_type === 'Patungan' ? 'Patungan (1/7 Bagian)' : 'Beli Utuh'}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Metode:</span>
+                                <strong>${reg.payment_method}</strong>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button onclick="window.location.reload()" class="btn-primary" style="flex: 1; background: #94a3b8; border: none;">
+                                <i class="fas fa-times"></i> Tutup
+                            </button>
+                            <a href="https://wa.me/6281234567890?text=Assalamualaikum, Saya ${reg.name} ingin mengonfirmasi pendaftaran Qurban dengan ID: ${reg.id}" 
+                               target="_blank" class="btn-primary" style="flex: 1; background: #25d366; text-decoration: none; border: none;">
+                               <i class="fab fa-whatsapp"></i> Konfirmasi WA
+                            </a>
+                        </div>
+                        <p style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-muted);">Silakan screenshot halaman ini sebagai bukti verifikasi.</p>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                QRCode.toCanvas(document.getElementById('reg-qrcode'), reg.id, { width: 220, margin: 2 });
+            };
+
+            const result = await fetchAPI('/registrations', 'POST', data);
+            if (result.id) {
+                showSuccess(result);
+            } else {
+                    alert('Gagal mendaftar. Silakan coba lagi.');
+                    btn.disabled = false;
+                    btn.textContent = 'Kirim Pendaftaran';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

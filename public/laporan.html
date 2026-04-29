@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Qurban | Al Binaa</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background: #f0f2f5;">
+    <div class="admin-wrapper">
+        <aside class="sidebar">
+            <div class="sidebar-brand"><i class="fas fa-mosque"></i> AL BINAA ADMIN</div>
+            <ul class="sidebar-nav">
+                <li><a href="admin.html"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
+                <li><a href="inventaris.html"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
+                <li><a href="pekurban.html"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
+                <li><a href="laporan.html" class="active"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
+                <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
+            </ul>
+        </aside>
+
+        <div class="mobile-toggle" id="sidebar-toggle"><i class="fas fa-bars"></i></div>
+
+        <main class="main-content">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; background: white; padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Laporan & Rekapitulasi</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Analisa data qurban 1447H secara visual</p>
+                </div>
+                <div style="display: flex; gap: 2rem; align-items: center;">
+                    <div id="realtime-clock" style="text-align: right; border-right: 2px solid #f0f0f0; padding-right: 2rem;">
+                        <div id="clock-time" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1;">00:00:00</div>
+                        <div id="clock-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 5px;">Hari, Tanggal</div>
+                    </div>
+                    <button onclick="window.print()" class="btn-export" style="background: var(--primary); color: white; border: none; padding: 0.8rem 1.2rem; border-radius: 12px; font-weight: 700; cursor: pointer;">
+                        <i class="fas fa-print"></i> Cetak Laporan
+                    </button>
+                    <div class="user-profile" style="display: flex; align-items: center; gap: 1rem; padding-left: 1rem; border-left: 2px solid #f0f0f0;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: 800; font-size: 0.95rem;">Administrator</div>
+                            <a href="#" onclick="logout()" style="color: #ff5252; text-decoration: none; font-size: 0.8rem; font-weight: 700;">LOGOUT <i class="fas fa-sign-out-alt"></i></a>
+                        </div>
+                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,77,64,0.2);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid-2">
+                <div class="table-card">
+                    <h3>Proporsi Pendaftaran Domba</h3>
+                    <canvas id="dombaReportChart"></canvas>
+                </div>
+                <div class="table-card">
+                    <h3>Proporsi Pendaftaran Sapi</h3>
+                    <canvas id="sapiReportChart"></canvas>
+                </div>
+            </div>
+
+            <div class="table-card" style="margin-top: 2rem;">
+                <h3>Ringkasan Keuangan</h3>
+                <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
+                    <div style="flex: 1; padding: 1.5rem; background: #e8f5e9; border-radius: 10px;">
+                        <span style="color: #2e7d32; font-size: 0.9rem;">Total Omzet</span>
+                        <h2 id="report-total-funds" style="color: #1b5e20;">Rp 0</h2>
+                    </div>
+                    <div style="flex: 1; padding: 1.5rem; background: #e3f2fd; border-radius: 10px;">
+                        <span style="color: #1565c0; font-size: 0.9rem;">Total Hewan Dipesan</span>
+                        <h2 id="report-total-animals" style="color: #0d47a1;">0 Ekor</h2>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script>
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            window.location.href = 'login.html';
+        }
+        document.addEventListener('DOMContentLoaded', async () => {
+            const registrations = await fetchAPI('/registrations');
+            const types = await fetchAPI('/types');
+
+            // Update Financial Summary
+            const totalFunds = registrations.reduce((sum, reg) => sum + reg.price, 0);
+            document.getElementById('report-total-funds').textContent = `Rp ${totalFunds.toLocaleString('id-ID')}`;
+            document.getElementById('report-total-animals').textContent = `${registrations.length} Ekor`;
+
+            // Chart Helper
+            const setupChart = (canvasId, category, colors) => {
+                const catTypes = types.filter(t => t.category === category);
+                const data = catTypes.map(t => registrations.filter(r => r.type_id === t.id).length);
+                const labels = catTypes.map(t => t.type);
+
+                new Chart(document.getElementById(canvasId), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: colors
+                        }]
+                    },
+                    options: { plugins: { legend: { position: 'bottom' } } }
+                });
+            };
+
+            setupChart('dombaReportChart', 'DOMBA', ['#42a5f5', '#ef5350', '#ffca28', '#66bb6a', '#ffa726']);
+            setupChart('sapiReportChart', 'SAPI', ['#42a5f5', '#ef5350', '#ffca28', '#66bb6a', '#26c6da']);
+
+            // Mobile Toggle
+            const sidebar = document.querySelector('.sidebar');
+            const toggle = document.getElementById('sidebar-toggle');
+            if (toggle) {
+                toggle.onclick = () => {
+                    sidebar.classList.toggle('active');
+                    toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                };
+            }
+        });
+    </script>
+</body>
+</html>
