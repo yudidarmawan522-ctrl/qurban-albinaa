@@ -198,7 +198,7 @@ function updateDistChart(registrations) {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDashboardData();
-    setInterval(loadDashboardData, 30000);
+    setInterval(loadDashboardData, 5000);
 
     const refreshBtn = document.getElementById('btn-refresh');
     if (refreshBtn) {
