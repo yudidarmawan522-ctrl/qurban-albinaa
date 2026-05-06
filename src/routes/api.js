@@ -212,9 +212,28 @@ router.post('/login', async (req, res) => {
 // Get Animal Types
 router.get('/types', async (req, res) => {
     try {
-        const [rows] = await db.query("SELECT * FROM animal_types");
+        let [rows] = await db.query("SELECT * FROM animal_types");
+        
+        // AUTO-FIX: Jika kosong, jalankan setup otomatis saat itu juga
+        if (rows.length === 0) {
+            console.log("Animal types empty, running emergency setup...");
+            const defaultTypes = [
+                ['SAPI', 'Tipe A', '± 250 - 300 Kg', 21000000, 3000000],
+                ['SAPI', 'Tipe B', '± 300 - 350 Kg', 24500000, 3500000],
+                ['SAPI', 'Tipe C', '± 350 - 400 Kg', 28000000, 4000000],
+                ['SAPI', 'Tipe D', '± 400 - 500 Kg', 35000000, 5000000],
+                ['DOMBA', 'Tipe Hemat', '± 18 - 22 Kg', 2300000, 0],
+                ['DOMBA', 'Tipe Standar', '± 23 - 27 Kg', 2800000, 0],
+                ['DOMBA', 'Tipe Premium', '± 28 - 33 Kg', 3500000, 0],
+                ['DOMBA', 'Tipe Super', '± 35 - 45 Kg', 4500000, 0]
+            ];
+            await db.query("INSERT INTO animal_types (category, type, weight, price, price_per_share) VALUES ?", [defaultTypes]);
+            [rows] = await db.query("SELECT * FROM animal_types");
+        }
+        
         res.json(rows);
     } catch (err) {
+        console.error("Error fetching types:", err);
         res.status(500).json({ error: true, message: err.message });
     }
 });
