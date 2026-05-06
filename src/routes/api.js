@@ -115,7 +115,10 @@ router.post('/login', async (req, res) => {
         // MASTER BYPASS (100% AMAN TANPA DB)
         // ==========================================
         if (username === 'admin' && password === 'admin123') {
-            return res.json({ success: true });
+            return res.json({ 
+                success: true, 
+                user: { username: 'admin', role: 'admin' } 
+            });
         }
 
         // Jalankan query hanya jika bukan master login
