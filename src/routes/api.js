@@ -108,14 +108,17 @@ runAutoSetup();
 
 // Login
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
-    
-    // MASTER BYPASS (Solusi Instan Guruku)
-    if (username === 'admin' && password === 'admin123') {
-        return res.json({ success: true });
-    }
-
     try {
+        const { username, password } = req.body;
+        
+        // ==========================================
+        // MASTER BYPASS (100% AMAN TANPA DB)
+        // ==========================================
+        if (username === 'admin' && password === 'admin123') {
+            return res.json({ success: true });
+        }
+
+        // Jalankan query hanya jika bukan master login
         const [rows] = await db.query("SELECT * FROM users WHERE username = ? AND password = ?", [username, password]);
         if (rows.length > 0) {
             res.json({ success: true });
@@ -123,7 +126,8 @@ router.post('/login', async (req, res) => {
             res.status(401).json({ error: true, message: 'Username atau Password salah!' });
         }
     } catch (err) {
-        res.status(500).json({ error: true, message: err.message });
+        console.error("Login Error:", err);
+        res.status(500).json({ error: true, message: 'Terjadi kesalahan pada server. Pastikan database MySQL berjalan.' });
     }
 });
 
