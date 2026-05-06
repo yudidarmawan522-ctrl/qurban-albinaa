@@ -7,21 +7,25 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="img/logo_v2.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body style="background: #f0f2f5;">
     <div class="admin-wrapper">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-brand">
-                <i class="fas fa-mosque"></i> AL BINAA ADMIN
+            <div class="sidebar-brand" style="display: flex; align-items: center; gap: 0.8rem; padding: 2rem 1.5rem;">
+                <img src="img/logo_v2.png" alt="Logo" style="height: 35px; width: 35px; background: white; border-radius: 50%; padding: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <span style="font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px;">AL BINAA ADMIN</span>
             </div>
             <ul class="sidebar-nav">
                 <li><a href="admin.html" class="active"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
                 <li><a href="inventaris.html"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
                 <li><a href="pekurban.html"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
-                <li><a href="laporan.html"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="laporan.html" style="color: #4db6ac;"><i class="fas fa-file-contract"></i> <span>Rekap Laporan</span></a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
                 <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
             </ul>
@@ -66,67 +70,133 @@
 
             <!-- Manual Input Modal -->
             <div id="modal-input" class="modal">
-                <div class="modal-content">
+                <div class="modal-content" style="max-width: 800px;">
                     <span class="close-modal">&times;</span>
-                    <h2>Input Data Manual</h2>
-                    <form id="admin-input-form">
-                        <div class="form-group">
-                            <label><i class="fas fa-user-tag"></i> Nama Mudhohi</label>
-                            <input type="text" id="admin-name" required placeholder="Nama Lengkap Pekurban">
-                        </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-user-graduate"></i> Nama Santri</label>
-                            <input type="text" id="admin-santri" required placeholder="Nama Lengkap Santri">
-                        </div>
-                        <div class="grid-2">
+                    <h2 style="color: var(--primary); margin-bottom: 1.5rem;"><i class="fas fa-edit"></i> Input Data Manual</h2>
+                    <form id="admin-input-form" enctype="multipart/form-data">
+                        <div class="grid-2" style="margin-bottom: 1.5rem;">
                             <div class="form-group">
-                                <label><i class="fas fa-school"></i> Kelas</label>
-                                <input type="text" id="admin-class" required placeholder="Contoh: 7A">
+                                <label><i class="fas fa-user-tag"></i> Nama Mudhohi (Pekurban)</label>
+                                <input type="text" id="admin-name" required placeholder="Nama Lengkap Pekurban">
                             </div>
                             <div class="form-group">
-                                <label><i class="fas fa-user-shield"></i> Penyembelih</label>
-                                <input type="text" id="admin-penyembelih" placeholder="Petugas">
+                                <label><i class="fas fa-whatsapp"></i> Nomor WhatsApp</label>
+                                <input type="tel" id="admin-phone" required placeholder="0812xxxxxx">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-graduate"></i> Nama Santri</label>
+                                <input type="text" id="admin-santri" required placeholder="Nama Lengkap Santri">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-school"></i> Kelas Santri</label>
+                                <input type="text" id="admin-class" required placeholder="Contoh: 7A, 10-IPA, dll.">
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label><i class="fas fa-cow"></i> Jenis Qurban</label>
-                            <select id="admin-type" required></select>
+
+                        <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                <label><i class="fas fa-cow"></i> Jenis Hewan Qurban</label>
+                                <select id="admin-type" required style="padding: 1rem; border-radius: 10px; border: 2px solid #ddd;"></select>
+                            </div>
+                            
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label><i class="fas fa-cubes"></i> Opsi Pembelian</label>
+                                <select id="admin-purchase-type" required style="padding: 1rem; border-radius: 10px; border: 2px solid #ddd;">
+                                    <option value="Utuh">Beli Utuh (1 Ekor)</option>
+                                    <option value="Patungan">Patungan (1/7 Bagian Sapi)</option>
+                                </select>
+                            </div>
                         </div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">
+
+                        <div class="grid-2" style="margin-bottom: 1.5rem;">
+                            <div class="form-group">
+                                <label><i class="fas fa-credit-card"></i> Metode Pembayaran</label>
+                                <select id="admin-payment-method">
+                                    <option value="Transfer BSI">Transfer BSI</option>
+                                    <option value="Cash">Tunai / Langsung</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-user-shield"></i> Pelaksana Penyembelihan</label>
+                                <select id="admin-penyembelih">
+                                    <option value="Panitia">Panitia / Petugas Al Binaa</option>
+                                    <option value="Orang Tua">Orang Tua (Menyembelih Sendiri)</option>
+                                    <option value="Ananda">Ananda (Santri Menyembelih Sendiri)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Bukti Transfer Field -->
+                        <div class="form-group" style="margin-bottom: 1.5rem; background: #fff8e1; padding: 1.5rem; border-radius: 12px; border: 1px dashed #ffa000;">
+                            <label style="color: #e65100;"><i class="fas fa-upload"></i> Upload Bukti Transfer (Opsional)</label>
+                            <input type="file" id="admin-proof" accept="image/*" style="margin-top: 10px; font-size: 0.9rem;">
+                            <small style="display: block; margin-top: 5px; color: #666;">Format: JPG, PNG, WEBP (Maks 5MB)</small>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 2rem;">
+                            <label><i class="fas fa-comment-dots"></i> Catatan Tambahan</label>
+                            <textarea id="admin-notes" rows="2" placeholder="Tuliskan jika ada permintaan khusus..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-primary" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
                             <i class="fas fa-save"></i> SIMPAN DATA PENDAFTARAN
                         </button>
                     </form>
                 </div>
             </div>
 
-            <!-- Stats -->
+            <!-- Stats Summary -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon icon-blue"><i class="fas fa-user-check"></i></div>
+                    <div class="stat-icon icon-blue"><i class="fas fa-users"></i></div>
                     <div class="stat-info">
                         <h3>Total Pendaftar</h3>
                         <p id="total-registrations">0</p>
+                        <small style="color: #666;" id="count-santri">0 Santri</small>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon icon-green"><i class="fas fa-wallet"></i></div>
+                    <div class="stat-icon icon-green"><i class="fas fa-money-bill-wave"></i></div>
                     <div class="stat-info">
-                        <h3>Total Dana</h3>
-                        <p id="total-funds">Rp 0</p>
+                        <h3>Dana Lunas</h3>
+                        <p id="total-funds-lunas" style="color: #2e7d32;">Rp 0</p>
+                        <small style="color: #ef6c00;" id="total-funds-pending">Pending: Rp 0</small>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon icon-orange"><i class="fas fa-cow"></i></div>
+                    <div class="stat-icon icon-orange" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff3e0;">
+                        <img src="img/sapi_new.png" style="width: 80%; height: 80%; object-fit: contain;">
+                    </div>
                     <div class="stat-info">
-                        <h3>Sapi Terpesan</h3>
+                        <h3>Sapi (Ekor)</h3>
                         <p id="ordered-sapi">0</p>
+                        <div style="width: 100%; height: 6px; background: #eee; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+                            <div id="progress-sapi" style="width: 0%; height: 100%; background: #fb8c00; transition: width 0.5s;"></div>
+                        </div>
+                        <small style="color: #666;" id="target-sapi-label">Target: 30</small>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon icon-purple"><i class="fas fa-sheep"></i></div>
+                    <div class="stat-icon" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background: #e8f5e9;">
+                        <img src="img/sapi_new.png" style="width: 80%; height: 80%; object-fit: contain;">
+                    </div>
                     <div class="stat-info">
-                        <h3>Domba Terpesan</h3>
+                        <h3>Sapi Patungan</h3>
+                        <p id="sapi-patungan-count">0</p>
+                        <small style="color: #666;">Total Orang (1/7)</small>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-purple" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f3e5f5;">
+                        <img src="img/domba_new.png" style="width: 80%; height: 80%; object-fit: contain;">
+                    </div>
+                    <div class="stat-info">
+                        <h3>Domba (Ekor)</h3>
                         <p id="ordered-domba">0</p>
+                        <div style="width: 100%; height: 6px; background: #eee; border-radius: 3px; margin-top: 8px; overflow: hidden;">
+                            <div id="progress-domba" style="width: 0%; height: 100%; background: #8e24aa; transition: width 0.5s;"></div>
+                        </div>
+                        <small style="color: #666;" id="target-domba-label">Target: 300</small>
                     </div>
                 </div>
             </div>
@@ -178,8 +248,9 @@
                                 <th>Santri</th>
                                 <th>Kelas</th>
                                 <th>Qurban</th>
-                                <th>Penyembelih</th>
+                                <th>Bukti</th>
                                 <th>Status</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -189,6 +260,15 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Image Modal for viewing proof -->
+    <div id="modal-image-view" class="modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center;">
+            <span class="close-image-modal" style="cursor:pointer; float:right; font-size: 1.5rem;">&times;</span>
+            <h3 style="margin-bottom: 1rem; color: var(--primary);">Bukti Transfer</h3>
+            <img id="full-proof-img" src="" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        </div>
     </div>
 
     <script src="js/main.js"></script>

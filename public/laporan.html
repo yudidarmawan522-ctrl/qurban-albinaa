@@ -3,26 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Laporan Qurban | Al Binaa</title>
+    <title>Rekap Laporan Qurban | Al Binaa</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <script>
         if (localStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .report-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            border: 1px solid #edf2f7;
+        }
+        .report-card h4 { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .report-card .value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .report-card .sub-value { font-size: 0.8rem; margin-top: 5px; font-weight: 600; }
+        
+        .group-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--primary);
+        }
+        .group-header h3 { margin: 0; color: var(--primary); font-size: 1.1rem; font-weight: 800; }
+
+        .btn-export-excel { background: #2e7d32 !important; color: white !important; }
+        .btn-export-pdf { background: #c62828 !important; color: white !important; }
+
+        @media print {
+            .sidebar, .mobile-toggle, .btn-print-action, .export-buttons { display: none !important; }
+            .main-content { margin: 0 !important; padding: 0 !important; }
+            .report-card { border: 1px solid #eee; box-shadow: none; }
+        }
+    </style>
+    <link rel="icon" type="image/png" href="img/logo_v2.png">
 </head>
-<body style="background: #f0f2f5;">
+<body style="background: #f8fafc;">
     <div class="admin-wrapper">
         <aside class="sidebar">
-            <div class="sidebar-brand"><i class="fas fa-mosque"></i> AL BINAA ADMIN</div>
+            <div class="sidebar-brand" style="display: flex; align-items: center; gap: 0.8rem; padding: 2rem 1.5rem;">
+                <img src="img/logo_v2.png" alt="Logo" style="height: 35px; width: 35px; background: white; border-radius: 50%; padding: 2px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <span style="font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px;">AL BINAA ADMIN</span>
+            </div>
             <ul class="sidebar-nav">
                 <li><a href="admin.html"><i class="fas fa-chart-line"></i> <span>Dashboard</span></a></li>
                 <li><a href="inventaris.html"><i class="fas fa-box"></i> <span>Inventaris</span></a></li>
                 <li><a href="pekurban.html"><i class="fas fa-users"></i> <span>Data Pekurban</span></a></li>
-                <li><a href="laporan.html" class="active"><i class="fas fa-file-invoice-dollar"></i> <span>Laporan</span></a></li>
+                <li><a href="laporan.html" class="active" style="color: white; background: rgba(255,255,255,0.1);"><i class="fas fa-file-contract"></i> <span>Rekap Laporan</span></a></li>
                 <li><a href="settings.html"><i class="fas fa-cog"></i> <span>Pengaturan</span></a></li>
                 <li style="margin-top: 2rem;"><a href="index.html" style="color: #ffab91;"><i class="fas fa-external-link-alt"></i> <span>View Public Site</span></a></li>
             </ul>
@@ -33,103 +79,211 @@
         <main class="main-content">
             <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; background: white; padding: 1.5rem 2rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
                 <div>
-                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Laporan & Rekapitulasi</h1>
-                    <p style="color: var(--text-muted); font-size: 0.9rem;">Analisa data qurban 1447H secara visual</p>
+                    <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--primary);">Rekapitulasi Eksekutif</h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Laporan Terintegrasi Qurban 1447H</p>
                 </div>
-                <div style="display: flex; gap: 2rem; align-items: center;">
-                    <div id="realtime-clock" style="text-align: right; border-right: 2px solid #f0f0f0; padding-right: 2rem;">
-                        <div id="clock-time" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); line-height: 1;">00:00:00</div>
-                        <div id="clock-date" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; margin-top: 5px;">Hari, Tanggal</div>
-                    </div>
-                    <button onclick="window.print()" class="btn-export" style="background: var(--primary); color: white; border: none; padding: 0.8rem 1.2rem; border-radius: 12px; font-weight: 700; cursor: pointer;">
-                        <i class="fas fa-print"></i> Cetak Laporan
+                <div style="display: flex; gap: 1rem; align-items: center;" class="export-buttons">
+                    <button id="btn-excel" class="btn-export-excel" style="border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-file-excel"></i> EXCEL
                     </button>
-                    <div class="user-profile" style="display: flex; align-items: center; gap: 1rem; padding-left: 1rem; border-left: 2px solid #f0f0f0;">
-                        <div style="text-align: right;">
-                            <div style="font-weight: 800; font-size: 0.95rem;">Administrator</div>
-                            <a href="#" onclick="logout()" style="color: #ff5252; text-decoration: none; font-size: 0.8rem; font-weight: 700;">LOGOUT <i class="fas fa-sign-out-alt"></i></a>
-                        </div>
-                        <div style="width: 45px; height: 45px; background: linear-gradient(135deg, var(--primary) 0%, #002d24 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; box-shadow: 0 4px 12px rgba(0,77,64,0.2);">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                    </div>
+                    <button id="btn-pdf" class="btn-export-pdf" style="border: none; padding: 0.8rem 1.5rem; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-file-pdf"></i> PDF
+                    </button>
                 </div>
             </header>
 
-            <div class="grid-2">
-                <div class="table-card">
-                    <h3>Proporsi Pendaftaran Domba</h3>
-                    <canvas id="dombaReportChart"></canvas>
+            <!-- Metrics Summary -->
+            <div class="report-grid">
+                <div class="report-card">
+                    <h4>Total Omzet</h4>
+                    <div class="value" id="total-omzet">Rp 0</div>
+                    <div class="sub-value" style="color: #666;" id="total-pendaftar">0 Orang</div>
                 </div>
-                <div class="table-card">
-                    <h3>Proporsi Pendaftaran Sapi</h3>
-                    <canvas id="sapiReportChart"></canvas>
+                <div class="report-card">
+                    <h4>Sapi Terkumpul</h4>
+                    <div class="value" id="total-sapi-ekor">0</div>
+                    <div class="sub-value" style="color: var(--primary);" id="sapi-detail">0 Utuh | 0 Patungan</div>
+                </div>
+                <div class="report-card">
+                    <h4>Domba Terkumpul</h4>
+                    <div class="value" id="total-domba-ekor">0</div>
+                    <div class="sub-value" style="color: #fb8c00;">Semua Tipe Berat</div>
                 </div>
             </div>
 
-            <div class="table-card" style="margin-top: 2rem;">
-                <h3>Ringkasan Keuangan</h3>
-                <div style="display: flex; gap: 2rem; margin-top: 1.5rem;">
-                    <div style="flex: 1; padding: 1.5rem; background: #e8f5e9; border-radius: 10px;">
-                        <span style="color: #2e7d32; font-size: 0.9rem;">Total Omzet</span>
-                        <h2 id="report-total-funds" style="color: #1b5e20;">Rp 0</h2>
-                    </div>
-                    <div style="flex: 1; padding: 1.5rem; background: #e3f2fd; border-radius: 10px;">
-                        <span style="color: #1565c0; font-size: 0.9rem;">Total Hewan Dipesan</span>
-                        <h2 id="report-total-animals" style="color: #0d47a1;">0 Ekor</h2>
-                    </div>
-                </div>
+            <div id="report-sections-container">
+                <!-- Data will be injected here grouped by Category/Type -->
             </div>
         </main>
     </div>
 
     <script src="js/main.js"></script>
     <script>
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            window.location.href = 'login.html';
-        }
+        let globalRegistrations = [];
+        let globalTypes = [];
+
         document.addEventListener('DOMContentLoaded', async () => {
-            const registrations = await fetchAPI('/registrations');
-            const types = await fetchAPI('/types');
+            globalRegistrations = await fetchAPI('/registrations');
+            globalTypes = await fetchAPI('/types');
+            renderReport();
 
-            // Update Financial Summary
-            const totalFunds = registrations.reduce((sum, reg) => sum + reg.price, 0);
-            document.getElementById('report-total-funds').textContent = `Rp ${totalFunds.toLocaleString('id-ID')}`;
-            document.getElementById('report-total-animals').textContent = `${registrations.length} Ekor`;
-
-            // Chart Helper
-            const setupChart = (canvasId, category, colors) => {
-                const catTypes = types.filter(t => t.category === category);
-                const data = catTypes.map(t => registrations.filter(r => r.type_id === t.id).length);
-                const labels = catTypes.map(t => t.type);
-
-                new Chart(document.getElementById(canvasId), {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: data,
-                            backgroundColor: colors
-                        }]
-                    },
-                    options: { plugins: { legend: { position: 'bottom' } } }
-                });
-            };
-
-            setupChart('dombaReportChart', 'DOMBA', ['#42a5f5', '#ef5350', '#ffca28', '#66bb6a', '#ffa726']);
-            setupChart('sapiReportChart', 'SAPI', ['#42a5f5', '#ef5350', '#ffca28', '#66bb6a', '#26c6da']);
-
-            // Mobile Toggle
-            const sidebar = document.querySelector('.sidebar');
-            const toggle = document.getElementById('sidebar-toggle');
-            if (toggle) {
-                toggle.onclick = () => {
-                    sidebar.classList.toggle('active');
-                    toggle.innerHTML = sidebar.classList.contains('active') ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-                };
-            }
+            document.getElementById('btn-excel').onclick = exportToExcel;
+            document.getElementById('btn-pdf').onclick = exportToPDF;
         });
+
+        function renderReport() {
+            const container = document.getElementById('report-sections-container');
+            container.innerHTML = '';
+
+            // 1. Calculate Summary
+            const totalOmzet = globalRegistrations.reduce((sum, r) => sum + parseFloat(r.price), 0);
+            const sapiRegs = globalRegistrations.filter(r => r.category === 'SAPI');
+            const sapiUtuh = sapiRegs.filter(r => r.purchase_type === 'Utuh').length;
+            const sapiPatungan = sapiRegs.filter(r => r.purchase_type === 'Patungan').length;
+            const totalSapi = sapiUtuh + Math.ceil(sapiPatungan / 7);
+            const totalDomba = globalRegistrations.filter(r => r.category === 'DOMBA').length;
+
+            document.getElementById('total-omzet').textContent = formatCurrency(totalOmzet);
+            document.getElementById('total-pendaftar').textContent = globalRegistrations.length + ' Orang';
+            document.getElementById('total-sapi-ekor').textContent = totalSapi + ' Ekor';
+            document.getElementById('sapi-detail').textContent = `${sapiUtuh} Utuh | ${sapiPatungan} Patungan (1/7)`;
+            document.getElementById('total-domba-ekor').textContent = totalDomba + ' Ekor';
+
+            // 2. Grouping Logic
+            const categories = ['SAPI', 'DOMBA'];
+            categories.forEach(cat => {
+                const catTypes = globalTypes.filter(t => t.category === cat);
+                if (catTypes.length === 0) return;
+
+                const sectionHeader = document.createElement('div');
+                sectionHeader.className = 'group-header';
+                sectionHeader.innerHTML = `<h3><i class="fas fa-${cat === 'SAPI' ? 'cow' : 'sheep'}"></i> LAPORAN REKAPITULASI ${cat}</h3>`;
+                container.appendChild(sectionHeader);
+
+                catTypes.forEach(type => {
+                    const typeRegs = globalRegistrations.filter(r => r.type_id === type.id);
+                    if (typeRegs.length === 0) return;
+
+                    const typeCard = document.createElement('div');
+                    typeCard.className = 'table-card';
+                    typeCard.style.padding = '1.5rem';
+                    typeCard.style.marginBottom = '1.5rem';
+                    
+                    const utuhCount = typeRegs.filter(r => r.purchase_type === 'Utuh').length;
+                    const patunganCount = typeRegs.filter(r => r.purchase_type === 'Patungan').length;
+                    const totalDana = typeRegs.reduce((sum, r) => sum + parseFloat(r.price), 0);
+
+                    typeCard.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">
+                            <strong style="color: var(--primary);">${type.type} (${type.weight})</strong>
+                            <span style="font-size: 0.8rem; background: #e8f5e9; padding: 4px 10px; border-radius: 50px; font-weight: 700;">
+                                Total: ${utuhCount} Utuh ${patunganCount > 0 ? '| ' + patunganCount + ' Patungan' : ''}
+                            </span>
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="text-align: left; color: #666;">
+                                    <th style="padding: 8px; border-bottom: 1px solid #eee;">Nama Mudhohi</th>
+                                    <th style="padding: 8px; border-bottom: 1px solid #eee;">Santri / Kelas</th>
+                                    <th style="padding: 8px; border-bottom: 1px solid #eee;">Opsi</th>
+                                    <th style="padding: 8px; border-bottom: 1px solid #eee; text-align: right;">Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${typeRegs.map(r => `
+                                    <tr>
+                                        <td style="padding: 8px; border-bottom: 1px solid #f9f9f9;">${r.name}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #f9f9f9;">${r.santri_name} (${r.santri_class})</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #f9f9f9;">${r.purchase_type}</td>
+                                        <td style="padding: 8px; border-bottom: 1px solid #f9f9f9; text-align: right; font-weight: 700;">${formatCurrency(r.price)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" style="padding: 10px; text-align: right; font-weight: 800;">SUBTOTAL ${type.type}:</td>
+                                    <td style="padding: 10px; text-align: right; font-weight: 800; color: var(--primary); font-size: 1.1rem;">${formatCurrency(totalDana)}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    `;
+                    container.appendChild(typeCard);
+                });
+            });
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+            
+            globalTypes.forEach(type => {
+                const typeRegs = globalRegistrations.filter(r => r.type_id === type.id);
+                if (typeRegs.length === 0) return;
+
+                const data = typeRegs.map(r => ({
+                    'ID': r.id,
+                    'Nama Mudhohi': r.name,
+                    'Santri': r.santri_name,
+                    'Kelas': r.santri_class,
+                    'WhatsApp': r.phone,
+                    'Tipe': r.type_label,
+                    'Opsi': r.purchase_type,
+                    'Harga': r.price,
+                    'Metode': r.payment_method,
+                    'Penyembelih': r.penyembelih,
+                    'Status': r.status
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, type.type.substring(0, 30));
+            });
+
+            XLSX.writeFile(wb, `Laporan_Qurban_AlBinaa_${new Date().toLocaleDateString()}.xlsx`);
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(18);
+            doc.text('LAPORAN REKAPITULASI QURBAN 1447H', 105, 15, { align: 'center' });
+            doc.setFontSize(10);
+            doc.text(`Dicetak pada: ${new Date().toLocaleString()}`, 105, 22, { align: 'center' });
+
+            let yPos = 30;
+
+            globalTypes.forEach(type => {
+                const typeRegs = globalRegistrations.filter(r => r.type_id === type.id);
+                if (typeRegs.length === 0) return;
+
+                if (yPos > 250) { doc.addPage(); yPos = 20; }
+
+                doc.setFontSize(12);
+                doc.setFont('helvetica', 'bold');
+                doc.text(`${type.category} - ${type.type} (${type.weight})`, 14, yPos);
+                yPos += 5;
+
+                const tableData = typeRegs.map(r => [
+                    r.name,
+                    `${r.santri_name} (${r.santri_class})`,
+                    r.purchase_type,
+                    formatCurrency(r.price)
+                ]);
+
+                doc.autoTable({
+                    startY: yPos,
+                    head: [['Mudhohi', 'Santri/Kelas', 'Opsi', 'Nilai']],
+                    body: tableData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [0, 77, 64] },
+                    margin: { left: 14, right: 14 },
+                    didDrawPage: (data) => { yPos = data.cursor.y + 10; }
+                });
+
+                yPos += 10;
+            });
+
+            doc.save(`Laporan_Qurban_AlBinaa_${new Date().toLocaleDateString()}.pdf`);
+        }
     </script>
 </body>
 </html>

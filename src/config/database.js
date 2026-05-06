@@ -1,27 +1,24 @@
-const fs = require('fs');
-const path = require('path');
+const mysql = require('mysql2/promise');
 require('dotenv').config();
 
-const dbPath = path.resolve(process.env.DATABASE_PATH || './data/database.json');
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'qurban_db',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
-const readDB = () => {
-    try {
-        const data = fs.readFileSync(dbPath, 'utf8');
-        return JSON.parse(data);
-    } catch (error) {
-        console.error('Error reading database:', error);
-        return { settings: {}, qurban_types: [], registrations: [] };
-    }
-};
+// Test database connection
+pool.getConnection()
+    .then(connection => {
+        console.log('✅ Successfully connected to MySQL Database');
+        connection.release();
+    })
+    .catch(err => {
+        console.error('❌ Error connecting to MySQL Database:', err);
+    });
 
-const writeDB = (data) => {
-    try {
-        fs.writeFileSync(dbPath, JSON.stringify(data, null, 2), 'utf8');
-        return true;
-    } catch (error) {
-        console.error('Error writing database:', error);
-        return false;
-    }
-};
-
-module.exports = { readDB, writeDB };
+module.exports = pool;
