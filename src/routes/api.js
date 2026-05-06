@@ -281,7 +281,35 @@ router.post('/registrations', upload.single('proof_image'), async (req, res) => 
     const proof_image = req.file ? `/uploads/proofs/${req.file.filename}` : null;
     
     try {
-        // EMERGENCY SEED: Jika animal_types kosong, pendaftaran pasti gagal karena FK. Kita isi paksa!
+        // 1. PASTIKAN SEMUA TABEL ADA (SUPER RESILIENT)
+        await db.query(`CREATE TABLE IF NOT EXISTS animal_types (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            category ENUM('SAPI', 'DOMBA') NOT NULL,
+            type VARCHAR(50) NOT NULL,
+            weight VARCHAR(50),
+            price DECIMAL(15,2) NOT NULL,
+            price_per_share DECIMAL(15,2)
+        )`);
+
+        await db.query(`CREATE TABLE IF NOT EXISTS registrations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            phone VARCHAR(20) NOT NULL,
+            santri_name VARCHAR(100),
+            santri_class VARCHAR(50),
+            type_id INT,
+            purchase_type ENUM('Utuh', 'Patungan') DEFAULT 'Utuh',
+            animal_no INT,
+            payment_method VARCHAR(50),
+            proof_image VARCHAR(255),
+            penyembelih VARCHAR(50),
+            notes TEXT,
+            status ENUM('Pending', 'Confirmed') DEFAULT 'Pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (type_id) REFERENCES animal_types(id)
+        )`);
+
+        // 2. EMERGENCY SEED: Jika animal_types kosong, isi paksa!
         const [types] = await db.query("SELECT * FROM animal_types");
         if (types.length === 0) {
             console.log("Emergency seeding animal_types during registration...");
@@ -298,6 +326,7 @@ router.post('/registrations', upload.single('proof_image'), async (req, res) => 
             await db.query("INSERT INTO animal_types (category, type, weight, price, price_per_share) VALUES ?", [defaultTypes]);
         }
 
+        // 3. PROSES INSERT REGISTRATION
         const sql = `INSERT INTO registrations 
             (name, phone, santri_name, santri_class, type_id, purchase_type, animal_no, payment_method, proof_image, penyembelih, notes, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
