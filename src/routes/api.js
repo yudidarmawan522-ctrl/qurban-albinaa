@@ -211,30 +211,45 @@ router.post('/login', async (req, res) => {
 
 // Get Animal Types
 router.get('/types', async (req, res) => {
+    const defaultTypes = [
+        { id: 1, category: 'SAPI', type: 'Tipe A', weight: '± 250 - 300 Kg', price: 21000000, price_per_share: 3000000 },
+        { id: 2, category: 'SAPI', type: 'Tipe B', weight: '± 300 - 350 Kg', price: 24500000, price_per_share: 3500000 },
+        { id: 3, category: 'SAPI', type: 'Tipe C', weight: '± 350 - 400 Kg', price: 28000000, price_per_share: 4000000 },
+        { id: 4, category: 'SAPI', type: 'Tipe D', weight: '± 400 - 500 Kg', price: 35000000, price_per_share: 5000000 },
+        { id: 5, category: 'DOMBA', type: 'Tipe Hemat', weight: '± 18 - 22 Kg', price: 2300000, price_per_share: 0 },
+        { id: 6, category: 'DOMBA', type: 'Tipe Standar', weight: '± 23 - 27 Kg', price: 2800000, price_per_share: 0 },
+        { id: 7, category: 'DOMBA', type: 'Tipe Premium', weight: '± 28 - 33 Kg', price: 3500000, price_per_share: 0 },
+        { id: 8, category: 'DOMBA', type: 'Tipe Super', weight: '± 35 - 45 Kg', price: 4500000, price_per_share: 0 }
+    ];
+
     try {
         let [rows] = await db.query("SELECT * FROM animal_types");
         
-        // AUTO-FIX: Jika kosong, jalankan setup otomatis saat itu juga
         if (rows.length === 0) {
-            console.log("Animal types empty, running emergency setup...");
-            const defaultTypes = [
-                ['SAPI', 'Tipe A', '± 250 - 300 Kg', 21000000, 3000000],
-                ['SAPI', 'Tipe B', '± 300 - 350 Kg', 24500000, 3500000],
-                ['SAPI', 'Tipe C', '± 350 - 400 Kg', 28000000, 4000000],
-                ['SAPI', 'Tipe D', '± 400 - 500 Kg', 35000000, 5000000],
-                ['DOMBA', 'Tipe Hemat', '± 18 - 22 Kg', 2300000, 0],
-                ['DOMBA', 'Tipe Standar', '± 23 - 27 Kg', 2800000, 0],
-                ['DOMBA', 'Tipe Premium', '± 28 - 33 Kg', 3500000, 0],
-                ['DOMBA', 'Tipe Super', '± 35 - 45 Kg', 4500000, 0]
-            ];
-            await db.query("INSERT INTO animal_types (category, type, weight, price, price_per_share) VALUES ?", [defaultTypes]);
-            [rows] = await db.query("SELECT * FROM animal_types");
+            console.log("Animal types empty in DB, using fallback and seeding...");
+            try {
+                const seedData = defaultTypes.map(t => [t.category, t.type, t.weight, t.price, t.price_per_share]);
+                await db.query("INSERT INTO animal_types (category, type, weight, price, price_per_share) VALUES ?", [seedData]);
+                [rows] = await db.query("SELECT * FROM animal_types");
+            } catch (seedErr) {
+                console.error("Seeding failed, using hardcoded fallback:", seedErr);
+                return res.json(defaultTypes);
+            }
         }
-        
-        res.json(rows);
+        res.json(rows.length > 0 ? rows : defaultTypes);
     } catch (err) {
-        console.error("Error fetching types:", err);
-        res.status(500).json({ error: true, message: err.message });
+        console.error("Error fetching types, using hardcoded fallback:", err);
+        res.json(defaultTypes); // FALLBACK: Tetap munculkan jenis hewan walau DB error
+    }
+});
+
+// Diagnostic Route
+router.get('/db-check', async (req, res) => {
+    try {
+        const [rows] = await db.query("SELECT 1 as connection_test");
+        res.json({ status: 'Connected', data: rows });
+    } catch (err) {
+        res.status(500).json({ status: 'Error', message: err.message });
     }
 });
 
