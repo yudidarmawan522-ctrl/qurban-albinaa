@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (err) {
                 console.error('Error saving manual input:', err);
-                alert('Kesalahan sistem.');
+                alert('Kesalahan sistem: ' + (err.message || 'Koneksi ke database terputus.'));
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = '<i class="fas fa-save"></i> SIMPAN DATA PENDAFTARAN';
