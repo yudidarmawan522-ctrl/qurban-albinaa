@@ -281,6 +281,23 @@ router.post('/registrations', upload.single('proof_image'), async (req, res) => 
     const proof_image = req.file ? `/uploads/proofs/${req.file.filename}` : null;
     
     try {
+        // EMERGENCY SEED: Jika animal_types kosong, pendaftaran pasti gagal karena FK. Kita isi paksa!
+        const [types] = await db.query("SELECT * FROM animal_types");
+        if (types.length === 0) {
+            console.log("Emergency seeding animal_types during registration...");
+            const defaultTypes = [
+                ['SAPI', 'Tipe A', '± 250 - 300 Kg', 21000000, 3000000],
+                ['SAPI', 'Tipe B', '± 300 - 350 Kg', 24500000, 3500000],
+                ['SAPI', 'Tipe C', '± 350 - 400 Kg', 28000000, 4000000],
+                ['SAPI', 'Tipe D', '± 400 - 500 Kg', 35000000, 5000000],
+                ['DOMBA', 'Tipe Hemat', '± 18 - 22 Kg', 2300000, 0],
+                ['DOMBA', 'Tipe Standar', '± 23 - 27 Kg', 2800000, 0],
+                ['DOMBA', 'Tipe Premium', '± 28 - 33 Kg', 3500000, 0],
+                ['DOMBA', 'Tipe Super', '± 35 - 45 Kg', 4500000, 0]
+            ];
+            await db.query("INSERT INTO animal_types (category, type, weight, price, price_per_share) VALUES ?", [defaultTypes]);
+        }
+
         const sql = `INSERT INTO registrations 
             (name, phone, santri_name, santri_class, type_id, purchase_type, animal_no, payment_method, proof_image, penyembelih, notes, status) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
@@ -308,7 +325,12 @@ router.post('/registrations', upload.single('proof_image'), async (req, res) => 
 
         res.json(finalReg);
     } catch (err) {
-        res.status(500).json({ error: true, message: err.message });
+        console.error("Registration Error:", err);
+        res.status(500).json({ 
+            error: true, 
+            message: "Database Error: " + err.message,
+            code: err.code 
+        });
     }
 });
 
